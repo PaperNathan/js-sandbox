@@ -39,42 +39,91 @@ template.innerHTML = `
 `;
 
 class UserCard extends HTMLElement {
+  static get observedAttributes() {
+    return ["name", "avatar"];
+  }
+
+  showInfo: boolean;
+
   constructor() {
     super();
-
     this.showInfo = true;
-
     this.attachShadow({ mode: "open" });
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-    this.shadowRoot.querySelector("h3").innerText = this.getAttribute("name");
-    this.shadowRoot.querySelector("img").src = this.getAttribute("avatar");
+    (this.shadowRoot as ShadowRoot).appendChild(
+      template.content.cloneNode(true)
+    );
+
+    this.name = this.getAttribute("name") || "";
+    this.avatar = this.getAttribute("avatar") || "";
+  }
+
+  get name() {
+    return this.getAttribute("name") || "";
+  }
+
+  set name(value: string) {
+    if (this.getAttribute("name") !== value) {
+      this.setAttribute("name", value);
+    }
+    if (this.shadowRoot) {
+      const h3 = this.shadowRoot.querySelector(
+        "h3"
+      ) as HTMLHeadingElement | null;
+      if (h3) h3.innerText = value;
+    }
+  }
+
+  get avatar() {
+    return this.getAttribute("avatar") || "";
+  }
+
+  set avatar(value: string) {
+    if (this.getAttribute("avatar") !== value) {
+      this.setAttribute("avatar", value);
+    }
+    if (this.shadowRoot) {
+      const img = this.shadowRoot.querySelector(
+        "img"
+      ) as HTMLImageElement | null;
+      if (img) img.src = value;
+    }
   }
 
   toggleInfo() {
     this.showInfo = !this.showInfo;
-
-    const info = this.shadowRoot.querySelector(".info");
-    const toggleBtn = this.shadowRoot.querySelector("#toggle-info");
-
-    if (this.showInfo) {
-      info.style.display = "block";
-      toggleBtn.innerText = "Hide Info";
-    } else {
-      info.style.display = "none";
-      toggleBtn.innerText = "Show Info";
+    const info = this.shadowRoot?.querySelector(
+      ".info"
+    ) as HTMLDivElement | null;
+    const toggleBtn = this.shadowRoot?.querySelector(
+      "#toggle-info"
+    ) as HTMLButtonElement | null;
+    if (info && toggleBtn) {
+      if (this.showInfo) {
+        info.style.display = "block";
+        toggleBtn.innerText = "Hide Info";
+      } else {
+        info.style.display = "none";
+        toggleBtn.innerText = "Show Info";
+      }
     }
   }
 
   connectedCallback() {
-    this.shadowRoot
-      .querySelector("#toggle-info")
-      .addEventListener("click", () => this.toggleInfo());
+    const btn = this.shadowRoot?.querySelector(
+      "#toggle-info"
+    ) as HTMLButtonElement | null;
+    if (btn) {
+      btn.addEventListener("click", () => this.toggleInfo());
+    }
   }
 
   disconnectedCallback() {
-    this.shadowRoot
-      .querySelector("#toggle-info")
-      .removeEventListener("click", () => this.toggleInfo());
+    const btn = this.shadowRoot?.querySelector(
+      "#toggle-info"
+    ) as HTMLButtonElement | null;
+    if (btn) {
+      btn.removeEventListener("click", () => this.toggleInfo());
+    }
   }
 }
 

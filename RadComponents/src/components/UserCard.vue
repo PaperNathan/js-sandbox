@@ -2,8 +2,6 @@
 const props = defineProps<{
   name: string;
 }>();
-
-console.log("UserCard props:", props);
 </script>
 
 <template>
